@@ -1,0 +1,374 @@
+#include "CTBot.h"
+#define BBOFF  "lightOF1"  
+#define BBON "lightON2"
+#define BFOFF "lightON3" 
+#define BFON "lightON4" // callback data sent when "LIGHT OFF" button is pressed
+#define KBOFF "lightON5" // callback data sent when "LIGHT OFF" button is pressed
+#define KBON "lightON6" // callback data sent when "LIGHT OFF" button is pressed
+#define KFOFF "lightON7" // callback data sent when "LIGHT OFF" button is pressed
+#define KFON "lightON8" // callback data sent when "LIGHT OFF" button is pressed
+#define KEOFF "lightON9" // callback data sent when "LIGHT OFF" button is pressed
+#define KEON "lightON10" // callback data sent when "LIGHT OFF" button is pressed
+#define HBOFF "lightON11" // callback data sent when "LIGHT OFF" button is pressed
+#define HBON "lightON12" // callback data sent when "LIGHT OFF" button is pressed
+#define HFOFF "lightON13" // callback data sent when "LIGHT OFF" button is pressed
+#define HFON "lightON14" // callback data sent when "LIGHT OFF" button is pressed
+#define HTOFF "lightON15" // callback data sent when "LIGHT OFF" button is pressed
+#define HTON "lightON16" // callback data sent when "LIGHT OFF" button is pressed
+#define null "Empty"
+#define B_R "Return"
+#define K_N "Return0"
+#define H_L "Return1"
+CTBot myBot;
+
+int bb;
+int bf;
+int kb;
+int kf;
+int ke;
+int hb;
+int hf;
+int ht;
+
+int myexit = 0;
+String pp = "INDIA";
+
+String ssid = "Nikhil's Network";     // REPLACE mySSID WITH YOUR WIFI SSID
+String pass = "15081947"; // REPLACE myPassword YOUR WIFI PASSWORD, IF ANY
+String token = "6405706074:AAEhylR9kLvhtFWn3nqcq7JnEFw4R4uZHHA";   // REPLACE myToken WITH YOUR TELEGRAM BOT TOKEN
+uint8_t B_B = D8;            // the onboard ESP8266 LED.    
+uint8_t B_F = D1;            // the onboard ESP8266 LED.    
+uint8_t K_B = D2;            // the onboard ESP8266 LED.    
+uint8_t K_F = D3;            // the onboard ESP8266 LED.    
+uint8_t K_E = D4;            // the onboard ESP8266 LED.    
+uint8_t H_B = D5;            // the onboard ESP8266 LED.    
+uint8_t H_F = D6;            // the onboard ESP8266 LED.    
+uint8_t H_T = D7;            // the onboard ESP8266 LED.    
+ CTBotInlineKeyboard B;
+ CTBotInlineKeyboard K;
+ CTBotInlineKeyboard H;
+ CTBotInlineKeyboard M;
+void setup() {
+	// initialize the Serial
+	Serial.begin(115200);
+	Serial.println("Starting TelegramBot...");
+
+	// connect the ESP8266 to the desired access point
+	myBot.wifiConnect(ssid, pass);
+
+	// set the telegram bot token
+	myBot.setTelegramToken(token);
+
+	// check if all things are ok
+	if (myBot.testConnection())
+		Serial.println("\ntestConnection OK");
+	else
+		Serial.println("\ntestConnection NOK");
+
+	// set the pin connected to the LED to act as output pin
+	pinMode(B_B, OUTPUT);
+	pinMode(B_F, OUTPUT);
+	pinMode(K_B, OUTPUT);
+	pinMode(K_F, OUTPUT);
+	pinMode(K_E, OUTPUT);
+	pinMode(H_B, OUTPUT);
+	pinMode(H_F, OUTPUT);
+	pinMode(H_T, OUTPUT);
+	digitalWrite(B_B, LOW);
+	digitalWrite(B_F, LOW);
+	digitalWrite(K_B, LOW);
+	digitalWrite(K_F, LOW);
+	digitalWrite(K_E, LOW);
+	digitalWrite(H_B, LOW);
+	digitalWrite(H_F, LOW);
+	digitalWrite(H_T, LOW);
+
+  {
+    M.addButton("BED ROOM", B_R, CTBotKeyboardButtonQuery);
+    M.addRow();
+    M.addButton("KITCHEN", K_N, CTBotKeyboardButtonQuery);
+    M.addRow();
+    M.addButton("HALL", H_L, CTBotKeyboardButtonQuery);
+  }
+  {
+  B.addButton("BULB", null, CTBotKeyboardButtonQuery);
+  
+  B.addButton("Off", BBOFF, CTBotKeyboardButtonQuery);
+  
+  B.addButton("On", BBON, CTBotKeyboardButtonQuery);
+
+  B.addRow();
+  
+  B.addButton("FAN", null, CTBotKeyboardButtonQuery);
+ 
+  B.addButton("Off", BFOFF, CTBotKeyboardButtonQuery);
+  
+  B.addButton("On", BFON, CTBotKeyboardButtonQuery);
+  }
+
+  {
+  K.addButton("BULB", null, CTBotKeyboardButtonQuery);
+
+  K.addButton("Off", KBOFF, CTBotKeyboardButtonQuery);
+  
+  K.addButton("On", KBON, CTBotKeyboardButtonQuery);
+
+  K.addRow();
+  
+  K.addButton("FAN", null, CTBotKeyboardButtonQuery);
+ 
+  K.addButton("Off", KFOFF, CTBotKeyboardButtonQuery);
+  
+  K.addButton("On", KFON, CTBotKeyboardButtonQuery);
+
+  K.addRow();
+  
+  K.addButton("Exhaust", null, CTBotKeyboardButtonQuery);
+ 
+  K.addButton("Off", KEOFF, CTBotKeyboardButtonQuery);
+  
+  K.addButton("On", KEON, CTBotKeyboardButtonQuery);
+
+
+  }
+
+   {
+  H.addButton("BULB", null, CTBotKeyboardButtonQuery);
+  
+  H.addButton("Off", HBOFF, CTBotKeyboardButtonQuery);
+  
+  H.addButton("On", HBON, CTBotKeyboardButtonQuery);
+
+  H.addRow();
+  
+  H.addButton("FAN", null, CTBotKeyboardButtonQuery);
+ 
+  H.addButton("Off", HFOFF, CTBotKeyboardButtonQuery);
+  
+  H.addButton("On", HFON, CTBotKeyboardButtonQuery);
+
+  H.addRow();
+  
+  H.addButton("TV", null, CTBotKeyboardButtonQuery);
+ 
+  H.addButton("Off", HTOFF, CTBotKeyboardButtonQuery);
+  
+  H.addButton("On", HTON, CTBotKeyboardButtonQuery);
+  }
+
+
+
+}
+
+// void loop() {
+// 	// a variable to store telegram message data
+// 	TBMessage msg;
+//   if(myBot.getNewMessage(msg)){
+//     if (msg.text.equals(pp)){
+//       myBot.sendMessage(msg.sender.id, "Success...Now You Have The Controls");
+//       myexit=0;
+
+//     while(myexit==0){
+
+//       int isloop=0;
+//    isloop++;
+//    isloop--;
+
+//     delay(50);
+    
+
+//     if (myBot.getNewMessage(msg)) {
+//     if (msg.messageType == CTBotMessageText) {
+//       // received a text message
+//       if (msg.text.equalsIgnoreCase("/start")) {
+//         myBot.sendMessage(msg.sender.id, "Here are your Controls:", M);
+//       }
+//       else if (msg.text.equalsIgnoreCase("/status")) {
+//         if (bb==1){
+//           myBot.sendMessage(msg.sender.id, "Bed Room Bulb is On");
+//         }
+//         else{
+//           myBot.sendMessage(msg.sender.id, "Bed Room Bulb is Off");
+//         }
+//         if (bf==1){
+//           myBot.sendMessage(msg.sender.id, "Bed Room Fan is On");
+//         }
+//         else{
+//           myBot.sendMessage(msg.sender.id, "Bed Room Fan is Off");
+//         }
+
+//         if (kb==1){
+//           myBot.sendMessage(msg.sender.id, "Kitchen Bulb is On");
+//         }
+//         else{
+//           myBot.sendMessage(msg.sender.id, "Kitchen Bulb is Off");
+//         }
+//         if (kf==1){
+//           myBot.sendMessage(msg.sender.id, "Kitchen Fan is On");
+//         }
+//         else{
+//           myBot.sendMessage(msg.sender.id, "Kitchen Fan is Off");
+//         }
+//         if (ke==1){
+//           myBot.sendMessage(msg.sender.id, "Kitchen Exhaust is On");
+//         }
+//         else{
+//           myBot.sendMessage(msg.sender.id, "Kitchen Exhaust is Off");
+//         }
+//         if (hb==1){
+//           myBot.sendMessage(msg.sender.id, "Hall Bulb is On");
+//         }
+//         else{
+//           myBot.sendMessage(msg.sender.id, "Hall Bulb is Off");
+//         }
+//          if (hf==1){
+//           myBot.sendMessage(msg.sender.id, "Hall Fan is On");
+//         }
+//         else{
+//           myBot.sendMessage(msg.sender.id, "Hall Fan is Off");
+//         }
+//          if (ht==1){
+//           myBot.sendMessage(msg.sender.id, "TV is On");
+//         }
+//         else{
+//           myBot.sendMessage(msg.sender.id, "TV is Off");
+//         }
+
+
+
+//       }
+//       else if (msg.text.equals("/logout")){
+//         myBot.sendMessage(msg.sender.id, "You Are Logged Out");
+//         myexit++;
+//        }
+
+//       else {
+      
+//         myBot.sendMessage(msg.sender.id, "Either Eenter Command from Menu Or Use the Buttons");
+//       }
+//     } else if (msg.messageType == CTBotMessageQuery) {
+//       // received a callback query message
+//       if (msg.callbackQueryData.equals(B_R)) {
+
+//         myBot.sendMessage(msg.sender.id, "BED ROOM:", B);
+//       }
+//       if (msg.callbackQueryData.equals(K_N)){
+//         myBot.sendMessage(msg.sender.id, "KITCHEN:", K);
+//       }
+
+//       if (msg.callbackQueryData.equals(H_L)){
+//         myBot.sendMessage(msg.sender.id, "HALL:", H);
+//       }
+//       if (msg.callbackQueryData.equals(BBON)){
+//         digitalWrite(B_B, HIGH);
+//         myBot.endQuery(msg.callbackQueryID, "Bed Room light is On");
+//         bb=1;
+//       }
+
+//       if (msg.callbackQueryData.equals(BBOFF)){
+//         digitalWrite(B_B, LOW);
+//         myBot.endQuery(msg.callbackQueryID, "Bed Room light is Off");
+//         bb=0;
+//       }
+//       if (msg.callbackQueryData.equals(BFON)){
+//         digitalWrite(B_F, HIGH);
+//         myBot.endQuery(msg.callbackQueryID, "Bed Room Fan is On");
+//         bf=1;
+//       }
+//       if (msg.callbackQueryData.equals(BFOFF)){
+//         digitalWrite(B_F, LOW);
+//         myBot.endQuery(msg.callbackQueryID, "Bed Room Fan is Off");
+//         bf=0;
+//       }
+
+
+//       if (msg.callbackQueryData.equals(KBON)){
+//         digitalWrite(K_B, HIGH);
+//         myBot.endQuery(msg.callbackQueryID, "Kitchen light is On");
+//         kb=1;
+//       }
+//       if (msg.callbackQueryData.equals(KBOFF)){
+//         digitalWrite(K_B, LOW);
+//         myBot.endQuery(msg.callbackQueryID, "Kitchen light is Off");
+//         kb=0;
+//       }
+//       if (msg.callbackQueryData.equals(KFON)){
+//         digitalWrite(K_F, HIGH);
+//         myBot.endQuery(msg.callbackQueryID, "Kitchen Fan is On");
+//         kf=1;
+//       }
+//       if (msg.callbackQueryData.equals(KFOFF)){
+//         digitalWrite(K_F, LOW);
+//         myBot.endQuery(msg.callbackQueryID, "Kitchen Fan is Off");
+//         kf=0;
+//       }
+//       if (msg.callbackQueryData.equals(KEON)){
+//         digitalWrite(K_E, HIGH);
+//         myBot.endQuery(msg.callbackQueryID, "Exhauster is On");
+//         ke=1;
+//       }
+//       if (msg.callbackQueryData.equals(KEOFF)){
+//         digitalWrite(K_E, LOW);
+//         myBot.endQuery(msg.callbackQueryID, "Exhauster is Off");
+//         ke=0;
+//       }
+      
+
+
+//       if (msg.callbackQueryData.equals(HBON)){
+//         digitalWrite(H_B, HIGH);
+//         myBot.endQuery(msg.callbackQueryID, "Hall light is On");
+//         hb=1;
+//       }
+//       if (msg.callbackQueryData.equals(HBOFF)){
+//         digitalWrite(H_B, LOW);
+//         myBot.endQuery(msg.callbackQueryID, "Hall light is Off");
+//         hb=0;
+//       }
+//       if (msg.callbackQueryData.equals(HFON)){
+//         digitalWrite(H_F, HIGH);
+//         myBot.endQuery(msg.callbackQueryID, "Hall Fan is On");
+//         hf=1;
+//       }
+//       if (msg.callbackQueryData.equals(HFOFF)){
+//         digitalWrite(H_F, LOW);
+//         myBot.endQuery(msg.callbackQueryID, "Hall Fan is Off");
+//         hf=0;
+//       }
+//       if (msg.callbackQueryData.equals(HTON)){
+//         digitalWrite(H_T, HIGH);
+//         myBot.endQuery(msg.callbackQueryID, "TV is On");
+//         ht=1;
+//       }
+//       if (msg.callbackQueryData.equals(HTOFF)){
+//         digitalWrite(H_T, LOW);
+//         myBot.endQuery(msg.callbackQueryID, "TV is Off");
+//         ht=0;
+//       }
+
+
+//       if (msg.callbackQueryData.equals(null)){
+//         myBot.endQuery(msg.callbackQueryID, "Click on 'On' and 'Off' only.", true);
+//       }
+      
+      
+      
+//     }
+//   }
+
+ 
+
+//     }
+
+      
+
+//     }
+//     else{
+//       myBot.sendMessage(msg.sender.id, "Wrong Password! Try Again");
+//     }
+
+
+//   }
+	 
+//   delay(50);
+// }
